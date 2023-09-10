@@ -14,4 +14,8 @@ class SHOOTER_API ASGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+
+	ASGameModeBase();
+
 };
