@@ -10,6 +10,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class USHealthComponent;
 class UTextRenderComponent;
+class USWeaponComponent;
 
 UCLASS()
 class SHOOTER_API ASBaseCharacter : public ACharacter
@@ -34,6 +35,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* HealthTextComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    USWeaponComponent* WeaponComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
     UAnimMontage* DeathAnimMontage;

@@ -5,7 +5,9 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SCharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SHealthComponent.h"
+#include "Components/SWeaponComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
 
@@ -21,6 +23,7 @@ ASBaseCharacter::ASBaseCharacter(const FObjectInitializer& ObjInit)
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
     SpringArmComponent->SetupAttachment(GetRootComponent());
     SpringArmComponent->bUsePawnControlRotation = true;
+    SpringArmComponent->SocketOffset = FVector(0.0f, 100.0f, 80.0f);
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
@@ -29,6 +32,9 @@ ASBaseCharacter::ASBaseCharacter(const FObjectInitializer& ObjInit)
 
     HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
     HealthTextComponent->SetupAttachment(GetRootComponent());
+    HealthTextComponent->SetOwnerNoSee(true);
+
+    WeaponComponent = CreateDefaultSubobject<USWeaponComponent>("WeaponComponent");
 }
 
 // Called when the game starts or when spawned
@@ -60,6 +66,9 @@ void ASBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+    check(PlayerInputComponent);
+    check(WeaponComponent);
+
     PlayerInputComponent->BindAxis("MoveForward", this, &ASBaseCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &ASBaseCharacter::MoveRight);
 
@@ -71,6 +80,9 @@ void ASBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
     PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ASBaseCharacter::OnStartRunning);
     PlayerInputComponent->BindAction("Run", IE_Released, this, &ASBaseCharacter::OnStopRunning);
+
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USWeaponComponent::StartFire);
+    PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USWeaponComponent::StopFire);
 }
 
 bool ASBaseCharacter::IsRunning() const
@@ -128,6 +140,9 @@ void ASBaseCharacter::OnDeath()
     {
         Controller->ChangeState(NAME_Spectating);
     }
+
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+    
 }
 
 void ASBaseCharacter::OnGroundLanded(const FHitResult& Hit)

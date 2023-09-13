@@ -12,7 +12,13 @@ public class Shooter : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
-		PublicIncludePaths.AddRange(new string[] { "Shooter/Public/Player", "Shooter/Public/Components", "Shooter/Public/Dev" });
+		PublicIncludePaths.AddRange(new string[] { 
+			"Shooter/Public/Player", 
+			"Shooter/Public/Components", 
+			"Shooter/Public/Dev",
+            "Shooter/Public/Weapon",
+            "Shooter/Public/UI",
+        });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
