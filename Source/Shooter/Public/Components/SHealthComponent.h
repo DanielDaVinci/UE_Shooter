@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "SCoreTypes.h"
 #include "SHealthComponent.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnDeath);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);
-
-    UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent)) class SHOOTER_API USHealthComponent : public UActorComponent
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class SHOOTER_API USHealthComponent : public UActorComponent
 {
     GENERATED_BODY()
 

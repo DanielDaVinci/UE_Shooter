@@ -11,5 +11,4 @@ ASGameModeBase::ASGameModeBase()
     DefaultPawnClass = ASBaseCharacter::StaticClass();
     PlayerControllerClass = ASPlayerController::StaticClass();
     HUDClass = ASGameHUD::StaticClass();
-} 
-
+}

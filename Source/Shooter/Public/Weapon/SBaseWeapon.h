@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "SCoreTypes.h"
 #include "SBaseWeapon.generated.h"
 
 UCLASS()
@@ -13,47 +14,47 @@ class SHOOTER_API ASBaseWeapon : public AActor
 	
 public:	
 
-	ASBaseWeapon();
+    ASBaseWeapon();
 
-	virtual void StartFire();
-	virtual void StopFire();
+    FOnClipEmptySignature OnClipEmpty;
+
+    virtual void StartFire();
+    virtual void StopFire();
+
+    void ChangeClip();
+    bool CanReload() const;
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USkeletalMeshComponent* WeaponMesh;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
     FName MuzzleSocketName = "MuzzleSocket";
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float TraceMaxDistance = 1000.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+    float TraceMaxDistance = 10000.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float DamageAmount = 10.0f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float TimerBetweenShots = 0.1f;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float BulletSpread = 1.5f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+    FAmmoData DefaultAmmo{false, 15, 10};
     
 	virtual void BeginPlay() override;
-
-    void MakeShot();
+    
+    virtual void MakeShot();
+    virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
     
     APlayerController* GetPlayerController() const;
-    
     bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const;
     FVector GetMuzzleWorldLocation() const;
-    bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
-
+    
     void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
 
-    void MakeDamage(const FHitResult& HitResult);
-
+    void DecreaseAmmo();
+    bool IsAmmoEmpty() const;
+    bool IsClipEmpty() const;
+    void LogAmmo();
+    
 private:
 
-    FTimerHandle ShotTimerHandle;
-    
+    FAmmoData CurrentAmmo;
 };

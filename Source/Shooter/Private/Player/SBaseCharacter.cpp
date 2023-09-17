@@ -71,8 +71,7 @@ void ASBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
     PlayerInputComponent->BindAxis("MoveForward", this, &ASBaseCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &ASBaseCharacter::MoveRight);
-
-    // Camera movement
+    
     PlayerInputComponent->BindAxis("LookUp", this, &ASBaseCharacter::AddControllerPitchInput);
     PlayerInputComponent->BindAxis("TurnAround", this, &ASBaseCharacter::AddControllerYawInput);
 
@@ -83,6 +82,10 @@ void ASBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
     PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USWeaponComponent::StartFire);
     PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USWeaponComponent::StopFire);
+
+    PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &USWeaponComponent::NextWeapon);
+
+    PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &USWeaponComponent::Reload);
 }
 
 bool ASBaseCharacter::IsRunning() const
@@ -143,6 +146,7 @@ void ASBaseCharacter::OnDeath()
 
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
     
+    WeaponComponent->StopFire();
 }
 
 void ASBaseCharacter::OnGroundLanded(const FHitResult& Hit)

@@ -18,13 +18,12 @@ ASBaseWeapon::ASBaseWeapon()
 
 void ASBaseWeapon::StartFire()
 {
-    MakeShot();
-    GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &ASBaseWeapon::MakeShot, TimerBetweenShots, true);
+
 }
 
 void ASBaseWeapon::StopFire()
 {
-    GetWorldTimerManager().ClearTimer(ShotTimerHandle);
+    
 }
 
 
@@ -32,33 +31,15 @@ void ASBaseWeapon::BeginPlay()
 {
     Super::BeginPlay();
     check(WeaponMesh);
+    checkf(DefaultAmmo.Bullets > 0, TEXT("Bullets const couldn't be less or equal zero"));
+    checkf(DefaultAmmo.Clips > 0, TEXT("Clips const couldn't be less or equal zero"));
 
+    CurrentAmmo = DefaultAmmo;
 }
 
 void ASBaseWeapon::MakeShot()
 {
-    if (!GetWorld())
-        return;
 
-    FVector TraceStart;
-    FVector TraceEnd;
-    if (!GetTraceData(TraceStart, TraceEnd))
-        return;
-
-    FHitResult HitResult;
-    MakeHit(HitResult, TraceStart, TraceEnd);
-
-    if (HitResult.bBlockingHit)
-    {
-        DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 3.0f, 0, 3.0f);
-        DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 24.0f, FColor::Blue, false, 5.0f);
-
-        MakeDamage(HitResult);
-    }
-    else
-    {
-        DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), TraceEnd, FColor::Red, false, 3.0f, 0, 3.0f);
-    }
 }
 
 APlayerController* ASBaseWeapon::GetPlayerController() const
@@ -94,8 +75,7 @@ bool ASBaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
         return false;
 
     TraceStart = ViewLocation;
-    const float HalfRad = FMath::DegreesToRadians(BulletSpread);
-    const FVector ShootDirection = FMath::VRandCone(ViewRotation.Vector(), HalfRad);
+    const FVector ShootDirection = ViewRotation.Vector();
     TraceEnd = TraceStart + ShootDirection * TraceMaxDistance;
 
     return true;
@@ -112,11 +92,52 @@ void ASBaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, con
     GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, CollisionParams);
 }
 
-void ASBaseWeapon::MakeDamage(const FHitResult& HitResult)
+void ASBaseWeapon::DecreaseAmmo()
 {
-    const auto DamagedActor = HitResult.GetActor();
-    if (!DamagedActor)
+    if (CurrentAmmo.Bullets == 0)
         return;
     
-    DamagedActor->TakeDamage(DamageAmount, FDamageEvent(), GetPlayerController(), this);
+    CurrentAmmo.Bullets--;
+    LogAmmo();
+
+    if (IsClipEmpty() && !IsAmmoEmpty())
+    {
+        StopFire();
+        OnClipEmpty.Broadcast();
+    }
+}
+
+bool ASBaseWeapon::IsAmmoEmpty() const
+{
+    return !CurrentAmmo.Infinite && CurrentAmmo.Clips == 0 && IsClipEmpty();
+}
+
+bool ASBaseWeapon::IsClipEmpty() const
+{
+    return CurrentAmmo.Bullets == 0;
+}
+
+void ASBaseWeapon::ChangeClip()
+{
+    CurrentAmmo.Bullets = DefaultAmmo.Bullets;
+    if (!CurrentAmmo.Infinite)
+    {
+        if (CurrentAmmo.Clips == 0)
+            return;
+        
+        CurrentAmmo.Clips--;
+    }
+    LogAmmo();
+}
+
+bool ASBaseWeapon::CanReload() const
+{
+    return CurrentAmmo.Bullets < DefaultAmmo.Bullets && CurrentAmmo.Clips > 0;
+}
+
+void ASBaseWeapon::LogAmmo()
+{
+    FString AmmoInfo = "Ammo: " + FString::FromInt(CurrentAmmo.Bullets) + " / ";
+    AmmoInfo += CurrentAmmo.Infinite ? "Infinite" : FString::FromInt(CurrentAmmo.Clips);
+    UE_LOG(LogTemp, Display, TEXT("%s"), *AmmoInfo)
 }
