@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SBaseWeapon.h"
 #include "Components/ActorComponent.h"
 #include "SCoreTypes.h"
 #include "SWeaponComponent.generated.h"
@@ -22,6 +23,9 @@ public:
     void StopFire();
     void NextWeapon();
     void Reload();
+
+    bool GetWeaponUIData(FWeaponUIData& UIData) const;
+    bool GetWeaponAmmoData(FAmmoData& AmmoData) const;
 
 protected:
     

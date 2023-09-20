@@ -14,11 +14,12 @@ void USHealthComponent::BeginPlay()
 {
     Super::BeginPlay();
 
+    check(MaxHealth > 0);
+    
     SetHealth(MaxHealth);
     OnHealthChanged.Broadcast(Health);
 
     AActor* ComponentOwner = GetOwner();
-
     if (ComponentOwner)
     {
         ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &USHealthComponent::OnTakeAnyDamage);
