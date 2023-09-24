@@ -19,12 +19,15 @@ public:
     FOnHealthChanged OnHealthChanged;
 
     UFUNCTION(BlueprintCallable, Category = "Health")
-    bool IsDead() const { return FMath::IsNearlyZero(Health); };
+    bool IsDead() const { return FMath::IsNearlyZero(Health); }
 
     UFUNCTION(BlueprintCallable, Category = "Health")
-    float GetHealthPercent() const { return Health / MaxHealth; };
+    float GetHealthPercent() const { return Health / MaxHealth; }
     
-    float GetHealth() const { return Health; };
+    float GetHealth() const { return Health; }
+    bool IsHealthFull() const;
+
+    bool TryToAddHealth(int32 HealthAmount);
     
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0.0"))

@@ -9,6 +9,20 @@ USHealthComponent::USHealthComponent()
     PrimaryComponentTick.bCanEverTick = false;
 }
 
+bool USHealthComponent::IsHealthFull() const
+{
+    return FMath::IsNearlyEqual(Health, MaxHealth);
+}
+
+bool USHealthComponent::TryToAddHealth(int32 HealthAmount)
+{
+    if (IsDead() || IsHealthFull())
+        return false;
+
+    SetHealth(Health + HealthAmount);
+    return true;
+}
+
 // Called when the game starts
 void USHealthComponent::BeginPlay()
 {
@@ -57,7 +71,7 @@ void USHealthComponent::HealUpdate()
     SetHealth(Health + HealModifier);
     OnHealthChanged.Broadcast(Health);
 
-    if (FMath::IsNearlyEqual(Health, MaxHealth) && GetWorld())
+    if (IsHealthFull() && GetWorld())
     {
         GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
     }

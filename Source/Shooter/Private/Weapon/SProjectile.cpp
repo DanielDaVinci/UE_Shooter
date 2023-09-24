@@ -7,6 +7,7 @@
 #include "DrawDebugHelpers.h"
 #include "SBaseCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Weapon/Components/SWeaponFXComponent.h"
 
 ASProjectile::ASProjectile()
 {
@@ -16,10 +17,13 @@ ASProjectile::ASProjectile()
     CollisionComponent->InitSphereRadius(5.0f);
     CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     CollisionComponent->SetCollisionResponseToAllChannels(ECR_Block);
+    CollisionComponent->bReturnMaterialOnMove = true;
     SetRootComponent(CollisionComponent);
 
     MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
     MovementComponent->InitialSpeed = 2000.0f;
+
+    WeaponFXComponent = CreateDefaultSubobject<USWeaponFXComponent>("WeaponFXComponent");
 }
 
 
@@ -29,6 +33,7 @@ void ASProjectile::BeginPlay()
 
     check(MovementComponent);
     check(CollisionComponent);
+    check(WeaponFXComponent);
 
     MovementComponent->Velocity = ShotDirection * MovementComponent->InitialSpeed;
 
@@ -63,6 +68,8 @@ void ASProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* Ot
         FColor::Blue,
         false,
         LifeSeconds);
+
+    WeaponFXComponent->PlayImpactFX(Hit);
 
     Destroy();
 }

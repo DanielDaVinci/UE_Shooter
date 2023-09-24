@@ -4,6 +4,12 @@
 #include "Weapon/SRifleWeapon.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "Weapon/Components/SWeaponFXComponent.h"
+
+ASRifleWeapon::ASRifleWeapon()
+{
+    WeaponFXComponent = CreateDefaultSubobject<USWeaponFXComponent>("WeaponFXComponent");
+}
 
 void ASRifleWeapon::StartFire()
 {
@@ -14,6 +20,13 @@ void ASRifleWeapon::StartFire()
 void ASRifleWeapon::StopFire()
 {
     GetWorldTimerManager().ClearTimer(ShotTimerHandle);
+}
+
+void ASRifleWeapon::BeginPlay()
+{
+    Super::BeginPlay();
+
+    check(WeaponFXComponent);
 }
 
 void ASRifleWeapon::MakeShot()
@@ -37,10 +50,10 @@ void ASRifleWeapon::MakeShot()
 
     if (HitResult.bBlockingHit)
     {
-        DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 3.0f, 0, 3.0f);
-        DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 24.0f, FColor::Blue, false, 5.0f);
-
+        // DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Red, false, 3.0f, 0, 3.0f);
+        // DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.0f, 24.0f, FColor::Blue, false, 5.0f);
         MakeDamage(HitResult);
+        WeaponFXComponent->PlayImpactFX(HitResult);
     }
     else
     {
