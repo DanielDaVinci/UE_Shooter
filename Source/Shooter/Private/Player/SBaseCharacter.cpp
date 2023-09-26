@@ -45,8 +45,9 @@ void ASBaseCharacter::BeginPlay()
     check(HealthComponent);
     check(HealthTextComponent);
     check(GetCharacterMovement());
+    check(GetMesh());
 
-    OnHealthChanged(HealthComponent->GetHealth());
+    OnHealthChanged(HealthComponent->GetHealth(), 0.0f);
     HealthComponent->OnHealthChanged.AddUObject(this, &ASBaseCharacter::OnHealthChanged);
     HealthComponent->OnDeath.AddUObject(this, &ASBaseCharacter::OnDeath);
 
@@ -126,7 +127,7 @@ void ASBaseCharacter::OnStopRunning()
     WantsToRun = false;
 }
 
-void ASBaseCharacter::OnHealthChanged(float Health)
+void ASBaseCharacter::OnHealthChanged(float Health, float HealthDelta)
 {
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 }
@@ -134,8 +135,7 @@ void ASBaseCharacter::OnHealthChanged(float Health)
 void ASBaseCharacter::OnDeath()
 {
     UE_LOG(LogTemp, Display, TEXT("Died"));
-
-    PlayAnimMontage(DeathAnimMontage);
+    
     GetCharacterMovement()->DisableMovement();
     SetLifeSpan(LifeSpanOnDeath);
 
@@ -147,6 +147,12 @@ void ASBaseCharacter::OnDeath()
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
     
     WeaponComponent->StopFire();
+
+    // Use animmontage or physics mesh fall
+    //PlayAnimMontage(DeathAnimMontage);
+    
+    GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    GetMesh()->SetSimulatePhysics(true);
 }
 
 void ASBaseCharacter::OnGroundLanded(const FHitResult& Hit)

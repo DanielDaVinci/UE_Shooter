@@ -81,7 +81,7 @@ private:
 	void OnStartRunning();
     void OnStopRunning();
 
-	void OnHealthChanged(float Health);
+	void OnHealthChanged(float Health, float HealthDelta);
 	void OnDeath();
 
 	UFUNCTION()

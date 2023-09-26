@@ -28,7 +28,7 @@ bool USPlayerHUDWidget::GetWeaponUIData(FWeaponUIData& UIData) const
 
 bool USPlayerHUDWidget::GetWeaponAmmoData(FAmmoData& AmmoData) const
 {
-    const USWeaponComponent* WeaponComponent =  SUtils::GetSPlayerComponent<USWeaponComponent>(GetOwningPlayerPawn());
+    const USWeaponComponent* WeaponComponent = SUtils::GetSPlayerComponent<USWeaponComponent>(GetOwningPlayerPawn());
     if (!WeaponComponent)
         return false;
 
@@ -46,4 +46,23 @@ bool USPlayerHUDWidget::IsPlayerSpectating() const
 {
     const auto Controller = GetOwningPlayer();
     return Controller && Controller->GetStateName() == NAME_Spectating;
+}
+
+bool USPlayerHUDWidget::Initialize()
+{
+    const auto HealthComponent = SUtils::GetSPlayerComponent<USHealthComponent>(GetOwningPlayerPawn());
+    if (HealthComponent)
+    {
+        HealthComponent->OnHealthChanged.AddUObject(this, &USPlayerHUDWidget::OnHealthChanged);
+    }
+
+    return Super::Initialize();
+}
+
+void USPlayerHUDWidget::OnHealthChanged(float Health, float HealthDelta)
+{
+    if (HealthDelta < 0.0f)
+    {
+        OnTakeDamage();
+    }
 }

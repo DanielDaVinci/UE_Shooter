@@ -7,6 +7,8 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 ASBaseWeapon::ASBaseWeapon()
 {
@@ -23,7 +25,7 @@ void ASBaseWeapon::StartFire()
 
 void ASBaseWeapon::StopFire()
 {
-    
+
 }
 
 
@@ -97,7 +99,7 @@ void ASBaseWeapon::DecreaseAmmo()
 {
     if (CurrentAmmo.Bullets == 0)
         return;
-    
+
     CurrentAmmo.Bullets--;
 
     if (IsClipEmpty() && !IsAmmoEmpty())
@@ -120,7 +122,19 @@ bool ASBaseWeapon::IsClipEmpty() const
 bool ASBaseWeapon::IsAmmoFull() const
 {
     return CurrentAmmo.Clips == DefaultAmmo.Clips &&
-        CurrentAmmo.Bullets == DefaultAmmo.Bullets;
+           CurrentAmmo.Bullets == DefaultAmmo.Bullets;
+}
+
+UNiagaraComponent* ASBaseWeapon::SpawnMuzzleFX()
+{
+    return UNiagaraFunctionLibrary::SpawnSystemAttached(
+        MuzzleFX,
+        WeaponMesh,
+        MuzzleSocketName,
+        FVector::ZeroVector,
+        FRotator::ZeroRotator,
+        EAttachLocation::SnapToTarget,
+        true);
 }
 
 void ASBaseWeapon::ChangeClip()
@@ -130,7 +144,7 @@ void ASBaseWeapon::ChangeClip()
     {
         if (CurrentAmmo.Clips == 0)
             return;
-        
+
         CurrentAmmo.Clips--;
     }
 }
@@ -146,7 +160,7 @@ bool ASBaseWeapon::TryToAddAmmo(int32 ClipsAmount)
         return false;
 
     UE_LOG(LogTemp, Display, TEXT("asd"))
-    
+
     if (IsAmmoEmpty())
     {
         CurrentAmmo.Clips = FMath::Clamp(ClipsAmount, 0, DefaultAmmo.Clips + 1);

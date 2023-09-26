@@ -1,8 +1,12 @@
 // Shooter Game. All Rights Reserved.
 
 #include "Components/SHealthComponent.h"
+#include "GameFramework/Actor.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/Controller.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "Camera/CameraShake.h"
 
 USHealthComponent::USHealthComponent()
 {
@@ -31,7 +35,6 @@ void USHealthComponent::BeginPlay()
     check(MaxHealth > 0);
     
     SetHealth(MaxHealth);
-    OnHealthChanged.Broadcast(Health);
 
     AActor* ComponentOwner = GetOwner();
     if (ComponentOwner)
@@ -42,7 +45,27 @@ void USHealthComponent::BeginPlay()
 
 void USHealthComponent::SetHealth(float NewHealth)
 {
-    Health = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+    const float NextHealth = FMath::Clamp(NewHealth, 0.0f, MaxHealth);
+    const float HealthDelta = NextHealth - Health;
+    
+    Health = NextHealth;
+    OnHealthChanged.Broadcast(Health, HealthDelta);
+}
+
+void USHealthComponent::PlayCameraShake()
+{
+    if (IsDead())
+        return;
+
+    const APawn* Player = Cast<APawn>(GetOwner());
+    if (!Player)
+        return;
+
+    const APlayerController* Controller = Player->GetController<APlayerController>();
+    if (!Controller || !Controller->PlayerCameraManager)
+        return;
+
+    Controller->PlayerCameraManager->StartCameraShake(CameraShake);
 }
 
 void USHealthComponent::OnTakeAnyDamage(
@@ -54,7 +77,6 @@ void USHealthComponent::OnTakeAnyDamage(
     GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
 
     SetHealth(Health - Damage);
-    OnHealthChanged.Broadcast(Health);
 
     if (IsDead())
     {
@@ -64,12 +86,13 @@ void USHealthComponent::OnTakeAnyDamage(
     {
         GetWorld()->GetTimerManager().SetTimer(HealTimerHandle, this, &USHealthComponent::HealUpdate, HealUpdateTime, true, HealDelay);
     }
+
+    PlayCameraShake();
 }
 
 void USHealthComponent::HealUpdate()
 {
     SetHealth(Health + HealModifier);
-    OnHealthChanged.Broadcast(Health);
 
     if (IsHealthFull() && GetWorld())
     {

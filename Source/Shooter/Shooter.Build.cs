@@ -6,6 +6,7 @@ public class Shooter : ModuleRules
 {
 	public Shooter(ReadOnlyTargetRules Target) : base(Target)
 	{
+		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayCameras" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[]
@@ -17,8 +18,6 @@ public class Shooter : ModuleRules
 			"Niagara",
 			"PhysicsCore",
 		});
-
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		PublicIncludePaths.AddRange(new string[] { 
 			"Shooter/Public/Player", 

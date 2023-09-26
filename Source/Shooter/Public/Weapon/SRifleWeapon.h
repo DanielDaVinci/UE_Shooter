@@ -7,6 +7,8 @@
 #include "SRifleWeapon.generated.h"
 
 class USWeaponFXComponent;
+class UNiagaraComponent;
+class UNiagaraSystem;
 
 /**
  * 
@@ -33,17 +35,30 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
     float BulletSpread = 1.5f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
-    USWeaponFXComponent* WeaponFXComponent;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+    UNiagaraSystem* TraceFX;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+    FString TraceTargetName = "TraceTarget";
+    
+    UPROPERTY(VisibleAnywhere, Category = "VFX")
+    USWeaponFXComponent* WeaponFXComponent;
+    
     virtual void BeginPlay() override;
     
     virtual void MakeShot() override;
     virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const override;
 
-    void MakeDamage(const FHitResult& HitResult);
-
 private:
 
     FTimerHandle ShotTimerHandle;
+
+    UPROPERTY()
+    UNiagaraComponent* MuzzleFXComponent;
+
+    void MakeDamage(const FHitResult& HitResult);
+    
+    void InitMuzzleFX();
+    void SetMuzzleFXVisibility(bool Visible);
+    void SpawnTraceFX(const FVector& TraceStart, const FVector& TraceEnd);
 };
