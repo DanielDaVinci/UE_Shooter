@@ -50,15 +50,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
     FVector2D LandedDamage = FVector2D(10.0f, 100.0f);
-
-	// Called when the game starts or when spawned
+    
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+    virtual void OnDeath();
 
-	// Called to bind functionality to input
+public:	
+
+	virtual void Tick(float DeltaTime) override;
+    
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
@@ -66,8 +66,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
     float GetMovementDirection() const;
-
-
 
 private:
 
@@ -82,7 +80,6 @@ private:
     void OnStopRunning();
 
 	void OnHealthChanged(float Health, float HealthDelta);
-	void OnDeath();
 
 	UFUNCTION()
 	void OnGroundLanded(const FHitResult& Hit);

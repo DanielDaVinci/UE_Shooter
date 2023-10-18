@@ -13,11 +13,10 @@
 
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All)
 
-// Sets default values
 ASBaseCharacter::ASBaseCharacter(const FObjectInitializer& ObjInit)
     : Super(ObjInit.SetDefaultSubobjectClass<USCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
-    // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+
     PrimaryActorTick.bCanEverTick = true;
 
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");

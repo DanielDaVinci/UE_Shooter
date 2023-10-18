@@ -31,6 +31,8 @@ public:
     FAmmoData GetAmmoData() const { return CurrentAmmo; }
 
     bool TryToAddAmmo(int32 ClipsAmount);
+    bool IsAmmoEmpty() const;
+    bool IsAmmoFull() const;
 
 protected:
 
@@ -64,9 +66,7 @@ protected:
     void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
 
     void DecreaseAmmo();
-    bool IsAmmoEmpty() const;
     bool IsClipEmpty() const;
-    bool IsAmmoFull() const;
 
     UNiagaraComponent* SpawnMuzzleFX();
     

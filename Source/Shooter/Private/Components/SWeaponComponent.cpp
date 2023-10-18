@@ -77,6 +77,19 @@ bool USWeaponComponent::TryToAddAmmo(TSubclassOf<ASBaseWeapon> WeaponType, int32
     return false;
 }
 
+bool USWeaponComponent::NeedAmmo(TSubclassOf<ASBaseWeapon> WeaponType)
+{
+    for (ASBaseWeapon* Weapon : Weapons)
+    {
+        if (Weapon && Weapon->IsA(WeaponType))
+        {
+            return !Weapon->IsAmmoFull();
+        }
+    }
+
+    return false;
+}
+
 void USWeaponComponent::BeginPlay()
 {
     Super::BeginPlay();

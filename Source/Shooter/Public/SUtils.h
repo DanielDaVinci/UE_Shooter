@@ -5,12 +5,12 @@ class SUtils
 public:
 
     template<typename T>
-    static T* GetSPlayerComponent(APawn* PlayerPawn)
+    static T* GetSPlayerComponent(AActor* Player)
     {
-        if (!PlayerPawn)
+        if (!Player)
             return nullptr;
 
-        UActorComponent* Component = PlayerPawn->GetComponentByClass(T::StaticClass());
+        UActorComponent* Component = Player->GetComponentByClass(T::StaticClass());
         return Cast<T>(Component); 
     }
     

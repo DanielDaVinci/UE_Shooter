@@ -6,7 +6,6 @@ public class Shooter : ModuleRules
 {
 	public Shooter(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayCameras" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[]
@@ -16,9 +15,16 @@ public class Shooter : ModuleRules
 			"Engine", 
 			"InputCore",
 			"Niagara",
+			"GameplayTasks",
+			"NavigationSystem",
 			"PhysicsCore",
 		});
 
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"GameplayCameras"
+		});
+		
 		PublicIncludePaths.AddRange(new string[] { 
 			"Shooter/Public/Player", 
 			"Shooter/Public/Components", 
@@ -28,6 +34,11 @@ public class Shooter : ModuleRules
             "Shooter/Public/Animations",
             "Shooter/Public/Pickups",
             "Shooter/Public/Weapon/Components",
+            "Shooter/Public/AI",
+            "Shooter/Public/AI/Tasks",
+            "Shooter/Public/AI/Services",
+            "Shooter/Public/AI/EQS",
+            "Shooter/Public/AI/Decorators",
         });
 
 		// Uncomment if you are using Slate UI
