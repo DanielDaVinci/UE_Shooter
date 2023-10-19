@@ -105,6 +105,15 @@ float ASBaseCharacter::GetMovementDirection() const
     return FMath::RadiansToDegrees(AngleBetween) * FMath::Sign(CrossProduct.Z);
 }
 
+void ASBaseCharacter::SetPlayerColor(const FLinearColor& Color)
+{
+    const auto MaterialInst = GetMesh()->CreateAndSetMaterialInstanceDynamic(0);
+    if (!MaterialInst)
+        return;
+
+    MaterialInst->SetVectorParameterValue(MaterialColorName, Color);
+}
+
 void ASBaseCharacter::MoveForward(float Amount)
 {
     IsMovingForward = Amount > 0.0f;
