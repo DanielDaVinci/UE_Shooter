@@ -9,8 +9,13 @@
 #include "Player/SPlayerState.h"
 #include "UI/SGameHUD.h"
 #include "AIController.h"
+#include "SRespawnComponent.h"
+#include "SUtils.h"
+#include "EngineUtils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogSGameModeBase, All, All);
+
+constexpr static int32 MinRoundTimeForRespawn = 10;
 
 ASGameModeBase::ASGameModeBase()
 {
@@ -38,6 +43,28 @@ UClass* ASGameModeBase::GetDefaultPawnClassForController_Implementation(AControl
         return AIPawnClass;
     }
     return Super::GetDefaultPawnClassForController_Implementation(InController);
+}
+
+void ASGameModeBase::Killed(AController* KillerController, AController* VictimController)
+{
+    const auto KillerPlayerState = KillerController ? Cast<ASPlayerState>(KillerController->PlayerState) : nullptr;
+    if (KillerPlayerState)
+    {
+        KillerPlayerState->AddKill();
+    }
+
+    const auto VictimPlayerState = KillerController ? Cast<ASPlayerState>(VictimController->PlayerState) : nullptr;
+    if (VictimPlayerState)
+    {
+        VictimPlayerState->AddDeath();
+    }
+
+    StartRespawn(VictimController);
+}
+
+void ASGameModeBase::RespawnRequest(AController* Controller)
+{
+    ResetOnePlayer(Controller);
 }
 
 void ASGameModeBase::SpawnBots()
@@ -77,7 +104,7 @@ void ASGameModeBase::GameTimerUpdate()
         }
         else
         {
-            UE_LOG(LogSGameModeBase, Display, TEXT("-------- GEME OVER ---------"));
+            GameOver();
         }
     }
 }
@@ -119,12 +146,12 @@ void ASGameModeBase::CreateTeamsInfo()
         const auto PlayerState = Cast<ASPlayerState>(Controller->PlayerState);
         if (!PlayerState)
             continue;
-        
+
         PlayerState->SetTeamID(TeamID);
         PlayerState->SetTeamColor(DetermineColorByTeamID(TeamID));
         SetPlayerColor(Controller);
 
-        TeamID = TeamID == 1 ? 2 : 1; 
+        TeamID = TeamID == 1 ? 2 : 1;
     }
 }
 
@@ -152,4 +179,51 @@ void ASGameModeBase::SetPlayerColor(AController* Controller)
         return;
 
     Character->SetPlayerColor(PlayerState->GetTeamColor());
+}
+
+void ASGameModeBase::LogPlayerInfo()
+{
+    if (!GetWorld())
+        return;
+
+    for (auto It = GetWorld()->GetControllerIterator(); It; ++It)
+    {
+        const auto Controller = It->Get();
+        if (!Controller)
+            continue;
+
+        const auto PlayerState = Cast<ASPlayerState>(Controller->PlayerState);
+        if (!PlayerState)
+            continue;
+
+        PlayerState->LogInfo();
+    }
+}
+
+void ASGameModeBase::StartRespawn(AController* Controller)
+{
+    const bool RespawnAvailable = RoundCountDown > MinRoundTimeForRespawn + GameData.RespawnTime;
+    if (!RespawnAvailable)
+        return;
+
+    const auto RespawnComponent = SUtils::GetSPlayerComponent<USRespawnComponent>(Controller);
+    if (!RespawnComponent)
+        return;
+
+    RespawnComponent->Respawn(GameData.RespawnTime);
+}
+
+void ASGameModeBase::GameOver()
+{
+    UE_LOG(LogSGameModeBase, Display, TEXT("-------- GEME OVER ---------"));
+    LogPlayerInfo();
+
+    for (auto Pawn: TActorRange<APawn>(GetWorld()))
+    {
+        if (Pawn)
+        {
+            Pawn->TurnOff();
+            Pawn->DisableInput(nullptr);
+        }
+    }
 }

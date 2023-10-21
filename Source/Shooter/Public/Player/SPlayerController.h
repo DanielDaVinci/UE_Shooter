@@ -6,12 +6,17 @@
 #include "GameFramework/PlayerController.h"
 #include "SPlayerController.generated.h"
 
-/**
- * 
- */
+class USRespawnComponent;
+
 UCLASS()
 class SHOOTER_API ASPlayerController : public APlayerController
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
+public:
+    ASPlayerController();
+
+protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    USRespawnComponent* RespawnComponent;
 };

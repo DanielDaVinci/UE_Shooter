@@ -5,11 +5,14 @@
 #include "AI/SAICharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/SAIPerceptionComponent.h"
+#include "Components/SRespawnComponent.h"
 
 ASAIController::ASAIController()
 {
     SAIPerceptionComponent = CreateDefaultSubobject<USAIPerceptionComponent>("SPerceptionComponent");
     SetPerceptionComponent(*SAIPerceptionComponent);
+
+    RespawnComponent = CreateDefaultSubobject<USRespawnComponent>("RespawnComponent");
 
     bWantsPlayerState = true;
 }

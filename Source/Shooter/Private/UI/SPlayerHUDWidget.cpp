@@ -50,10 +50,10 @@ bool USPlayerHUDWidget::IsPlayerSpectating() const
 
 bool USPlayerHUDWidget::Initialize()
 {
-    const auto HealthComponent = SUtils::GetSPlayerComponent<USHealthComponent>(GetOwningPlayerPawn());
-    if (HealthComponent)
+    if (GetOwningPlayer())
     {
-        HealthComponent->OnHealthChanged.AddUObject(this, &USPlayerHUDWidget::OnHealthChanged);
+        GetOwningPlayer()->GetOnNewPawnNotifier().AddUObject(this, &USPlayerHUDWidget::OnNewPawn);
+        OnNewPawn(GetOwningPlayerPawn());
     }
 
     return Super::Initialize();
@@ -64,5 +64,14 @@ void USPlayerHUDWidget::OnHealthChanged(float Health, float HealthDelta)
     if (HealthDelta < 0.0f)
     {
         OnTakeDamage();
+    }
+}
+
+void USPlayerHUDWidget::OnNewPawn(APawn* NewPawn)
+{
+    const auto HealthComponent = SUtils::GetSPlayerComponent<USHealthComponent>(NewPawn);
+    if (HealthComponent)
+    {
+        HealthComponent->OnHealthChanged.AddUObject(this, &USPlayerHUDWidget::OnHealthChanged);
     }
 }

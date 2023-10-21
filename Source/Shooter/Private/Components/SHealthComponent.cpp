@@ -1,6 +1,8 @@
 // Shooter Game. All Rights Reserved.
 
 #include "Components/SHealthComponent.h"
+
+#include "SGameModeBase.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/Controller.h"
@@ -68,6 +70,21 @@ void USHealthComponent::PlayCameraShake()
     Controller->PlayerCameraManager->StartCameraShake(CameraShake);
 }
 
+void USHealthComponent::Killed(AController* KillerController)
+{
+    if (!GetWorld())
+        return;
+    
+    const auto GameMode = Cast<ASGameModeBase>(GetWorld()->GetAuthGameMode());
+    if (!GameMode)
+        return;
+
+    const auto Player = Cast<APawn>(GetOwner());
+    const auto VictimController = Player ? Player->Controller : nullptr;
+
+    GameMode->Killed(KillerController, VictimController);
+}
+
 void USHealthComponent::OnTakeAnyDamage(
     AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
@@ -80,6 +97,7 @@ void USHealthComponent::OnTakeAnyDamage(
 
     if (IsDead())
     {
+        Killed(InstigatedBy);
         OnDeath.Broadcast();
     }
     else if (AutoHeal)

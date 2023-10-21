@@ -7,6 +7,7 @@
 #include "SAIController.generated.h"
 
 class USAIPerceptionComponent;
+class USRespawnComponent;
 
 UCLASS()
 class SHOOTER_API ASAIController : public AAIController
@@ -22,6 +23,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USAIPerceptionComponent* SAIPerceptionComponent;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    USRespawnComponent* RespawnComponent;
+    
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AI")
     FName FocusOnKeyName = "EnemyActor";
     

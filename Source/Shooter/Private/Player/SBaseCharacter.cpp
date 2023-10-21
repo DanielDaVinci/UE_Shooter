@@ -1,14 +1,11 @@
 // Shooter Game. All Rights Reserved.
 
 #include "Player/SBaseCharacter.h"
-#include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Components/SCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SHealthComponent.h"
 #include "Components/SWeaponComponent.h"
-#include "Components/TextRenderComponent.h"
 #include "GameFramework/Controller.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All)
@@ -19,30 +16,15 @@ ASBaseCharacter::ASBaseCharacter(const FObjectInitializer& ObjInit)
 
     PrimaryActorTick.bCanEverTick = true;
 
-    SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
-    SpringArmComponent->SetupAttachment(GetRootComponent());
-    SpringArmComponent->bUsePawnControlRotation = true;
-    SpringArmComponent->SocketOffset = FVector(0.0f, 100.0f, 80.0f);
-
-    CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-    CameraComponent->SetupAttachment(SpringArmComponent);
-
     HealthComponent = CreateDefaultSubobject<USHealthComponent>("HealthComponent");
-
-    HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthTextComponent");
-    HealthTextComponent->SetupAttachment(GetRootComponent());
-    HealthTextComponent->SetOwnerNoSee(true);
-
     WeaponComponent = CreateDefaultSubobject<USWeaponComponent>("WeaponComponent");
 }
 
-// Called when the game starts or when spawned
 void ASBaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
     check(HealthComponent);
-    check(HealthTextComponent);
     check(GetCharacterMovement());
     check(GetMesh());
 
@@ -53,44 +35,15 @@ void ASBaseCharacter::BeginPlay()
     LandedDelegate.AddDynamic(this, &ASBaseCharacter::OnGroundLanded);
 }
 
-// Called every frame
 void ASBaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-
-}
-
-// Called to bind functionality to input
-void ASBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-    check(PlayerInputComponent);
-    check(WeaponComponent);
-
-    PlayerInputComponent->BindAxis("MoveForward", this, &ASBaseCharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &ASBaseCharacter::MoveRight);
-    
-    PlayerInputComponent->BindAxis("LookUp", this, &ASBaseCharacter::AddControllerPitchInput);
-    PlayerInputComponent->BindAxis("TurnAround", this, &ASBaseCharacter::AddControllerYawInput);
-
-    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASBaseCharacter::Jump);
-
-    PlayerInputComponent->BindAction("Run", IE_Pressed, this, &ASBaseCharacter::OnStartRunning);
-    PlayerInputComponent->BindAction("Run", IE_Released, this, &ASBaseCharacter::OnStopRunning);
-
-    PlayerInputComponent->BindAction("Fire", IE_Pressed, WeaponComponent, &USWeaponComponent::StartFire);
-    PlayerInputComponent->BindAction("Fire", IE_Released, WeaponComponent, &USWeaponComponent::StopFire);
-
-    PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, WeaponComponent, &USWeaponComponent::NextWeapon);
-
-    PlayerInputComponent->BindAction("Reload", IE_Pressed, WeaponComponent, &USWeaponComponent::Reload);
 }
 
 bool ASBaseCharacter::IsRunning() const
 {
-    return WantsToRun && IsMovingForward && !GetVelocity().IsZero();
+    return false;
 }
 
 float ASBaseCharacter::GetMovementDirection() const
@@ -114,51 +67,24 @@ void ASBaseCharacter::SetPlayerColor(const FLinearColor& Color)
     MaterialInst->SetVectorParameterValue(MaterialColorName, Color);
 }
 
-void ASBaseCharacter::MoveForward(float Amount)
-{
-    IsMovingForward = Amount > 0.0f;
-    AddMovementInput(GetActorForwardVector(), Amount);
-}
-
-void ASBaseCharacter::MoveRight(float Amount)
-{
-    AddMovementInput(GetActorRightVector(), Amount);
-}
-
-void ASBaseCharacter::OnStartRunning()
-{
-    WantsToRun = true;
-}
-
-void ASBaseCharacter::OnStopRunning()
-{
-    WantsToRun = false;
-}
-
 void ASBaseCharacter::OnHealthChanged(float Health, float HealthDelta)
 {
-    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+    
 }
 
 void ASBaseCharacter::OnDeath()
 {
     UE_LOG(LogTemp, Display, TEXT("Died"));
-    
+
     GetCharacterMovement()->DisableMovement();
     SetLifeSpan(LifeSpanOnDeath);
 
-    if (Controller)
-    {
-        Controller->ChangeState(NAME_Spectating);
-    }
-
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
-    
+
     WeaponComponent->StopFire();
 
     // Use animmontage or physics mesh fall
     //PlayAnimMontage(DeathAnimMontage);
-    
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     GetMesh()->SetSimulatePhysics(true);
 }
