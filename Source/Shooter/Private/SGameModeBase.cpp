@@ -34,6 +34,8 @@ void ASGameModeBase::StartPlay()
 
     CurrentRound = 1;
     StartRound();
+
+    SetMatchState(ESMatchState::InProgress);
 }
 
 UClass* ASGameModeBase::GetDefaultPawnClassForController_Implementation(AController* InController)
@@ -65,6 +67,29 @@ void ASGameModeBase::Killed(AController* KillerController, AController* VictimCo
 void ASGameModeBase::RespawnRequest(AController* Controller)
 {
     ResetOnePlayer(Controller);
+}
+
+bool ASGameModeBase::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)
+{
+    const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
+    if (PauseSet)
+    {
+        SetMatchState(ESMatchState::Pause);
+    }
+    
+    return Super::SetPause(PC, CanUnpauseDelegate);
+}
+
+bool ASGameModeBase::ClearPause()
+{
+    const auto PauseCleared = Super::ClearPause();
+
+    if (PauseCleared)
+    {
+        SetMatchState(ESMatchState::InProgress);
+    }
+
+    return PauseCleared;
 }
 
 void ASGameModeBase::SpawnBots()
@@ -226,4 +251,15 @@ void ASGameModeBase::GameOver()
             Pawn->DisableInput(nullptr);
         }
     }
+
+    SetMatchState(ESMatchState::GameOver);
+}
+
+void ASGameModeBase::SetMatchState(ESMatchState State)
+{
+    if (MatchState == State)
+        return;
+
+    MatchState = State;
+    OnMatchStateChanged.Broadcast(MatchState);
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SCoreTypes.h"
 #include "GameFramework/PlayerController.h"
 #include "SPlayerController.generated.h"
 
@@ -19,4 +20,13 @@ public:
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USRespawnComponent* RespawnComponent;
+
+    virtual void BeginPlay() override;
+    
+    virtual void SetupInputComponent() override;
+
+private:
+    void OnPauseGame();
+
+    void OnMatchStateChanged(ESMatchState State);
 };
