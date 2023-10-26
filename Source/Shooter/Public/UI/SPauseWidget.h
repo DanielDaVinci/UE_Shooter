@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SBaseWidget.h"
 #include "Blueprint/UserWidget.h"
 #include "SPauseWidget.generated.h"
 
@@ -10,12 +11,12 @@
 class UButton;
 
 UCLASS()
-class SHOOTER_API USPauseWidget : public UUserWidget
+class SHOOTER_API USPauseWidget : public USBaseWidget
 {
     GENERATED_BODY()
 
 public:
-    virtual bool Initialize() override;
+    virtual void NativeOnInitialized() override;
 
 protected:
     UPROPERTY(meta = (BindWidget))

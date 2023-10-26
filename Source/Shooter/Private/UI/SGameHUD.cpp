@@ -18,9 +18,10 @@ void ASGameHUD::BeginPlay()
 {
     Super::BeginPlay();
 
-    GameWidgets.Add(ESMatchState::InProgress, CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass));
-    GameWidgets.Add(ESMatchState::Pause, CreateWidget<UUserWidget>(GetWorld(), PauseWidgetClass));
-
+    GameWidgets.Add(ESMatchState::InProgress, CreateWidget<USBaseWidget>(GetWorld(), PlayerHUDWidgetClass));
+    GameWidgets.Add(ESMatchState::Pause, CreateWidget<USBaseWidget>(GetWorld(), PauseWidgetClass));
+    GameWidgets.Add(ESMatchState::GameOver, CreateWidget<USBaseWidget>(GetWorld(), GameOverWidgetClass));
+    
     for (auto GameWidgetPair: GameWidgets)
     {
         const auto GameWidget = GameWidgetPair.Value;
@@ -68,5 +69,6 @@ void ASGameHUD::OnMatchStateChanged(ESMatchState State)
     if (CurrentWidget)
     {
         CurrentWidget->SetVisibility(ESlateVisibility::Visible);
+        CurrentWidget->Show();
     }
 }

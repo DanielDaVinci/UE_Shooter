@@ -9,14 +9,14 @@
 
 class UNiagaraSystem;
 class UNiagaraComponent;
+class USoundCue;
 
 UCLASS()
 class SHOOTER_API ASBaseWeapon : public AActor
 {
     GENERATED_BODY()
-	
-public:	
 
+public:
     ASBaseWeapon();
 
     FOnClipEmptySignature OnClipEmpty;
@@ -35,7 +35,6 @@ public:
     bool IsAmmoFull() const;
 
 protected:
-
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USkeletalMeshComponent* WeaponMesh;
 
@@ -53,23 +52,25 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
     UNiagaraSystem* MuzzleFX;
-    
-	virtual void BeginPlay() override;
-    
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+    USoundCue* FireSound;
+
+    virtual void BeginPlay() override;
+
     virtual void MakeShot();
     virtual bool GetTraceData(FVector& TraceStart, FVector& TraceEnd) const;
-    
+
     bool GetPlayerViewPoint(FVector& ViewLocation, FRotator& ViewRotation) const;
     FVector GetMuzzleWorldLocation() const;
-    
+
     void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
 
     void DecreaseAmmo();
     bool IsClipEmpty() const;
 
     UNiagaraComponent* SpawnMuzzleFX();
-    
-private:
 
+private:
     FAmmoData CurrentAmmo;
 };

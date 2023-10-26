@@ -7,6 +7,7 @@
 #include "SBasePickup.generated.h"
 
 class USphereComponent;
+class USoundCue;
 
 UCLASS()
 class SHOOTER_API ASBasePickup : public AActor
@@ -14,7 +15,6 @@ class SHOOTER_API ASBasePickup : public AActor
     GENERATED_BODY()
 
 public:
-    // Sets default values for this actor's properties
     ASBasePickup();
 
 protected:
@@ -27,13 +27,14 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     float RotationSpeed = 10.0f;
 
-    // Called when the game starts or when spawned
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+    USoundCue* PickupTakenSound;
+
     virtual void BeginPlay() override;
 
     virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 public:
-    // Called every frame
     virtual void Tick(float DeltaTime) override;
 
     bool CouldBeTaken() const;

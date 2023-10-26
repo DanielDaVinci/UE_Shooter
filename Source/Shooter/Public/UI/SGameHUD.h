@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SBaseWidget.h"
 #include "SCoreTypes.h"
 #include "GameFramework/HUD.h"
 #include "SGameHUD.generated.h"
@@ -21,15 +22,18 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     TSubclassOf<UUserWidget> PauseWidgetClass;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+    TSubclassOf<UUserWidget> GameOverWidgetClass;
     
     virtual void BeginPlay() override;
 
 private:
     UPROPERTY()
-    TMap<ESMatchState, UUserWidget*> GameWidgets;
+    TMap<ESMatchState, USBaseWidget*> GameWidgets;
 
     UPROPERTY()
-    UUserWidget* CurrentWidget = nullptr;
+    USBaseWidget* CurrentWidget = nullptr;
     
     void DrawCrossHair();
     void OnMatchStateChanged(ESMatchState State);

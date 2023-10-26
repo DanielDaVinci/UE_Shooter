@@ -8,6 +8,7 @@
 
 class USHealthComponent;
 class USWeaponComponent;
+class USoundCue;
 
 UCLASS()
 class SHOOTER_API ASBaseCharacter : public ACharacter
@@ -39,9 +40,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Material")
     FName MaterialColorName = "Paint Color";
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+    USoundCue* DeathSound;
+
     virtual void BeginPlay() override;
 
     virtual void OnDeath();
+
+    virtual void OnHealthChanged(float Health, float HealthDelta);
 
 public:
     virtual void Tick(float DeltaTime) override;
@@ -55,8 +61,6 @@ public:
     void SetPlayerColor(const FLinearColor& Color);
 
 private:
-    void OnHealthChanged(float Health, float HealthDelta);
-
     UFUNCTION()
     void OnGroundLanded(const FHitResult& Hit);
 };

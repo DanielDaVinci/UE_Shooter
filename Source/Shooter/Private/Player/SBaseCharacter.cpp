@@ -7,6 +7,8 @@
 #include "Components/SHealthComponent.h"
 #include "Components/SWeaponComponent.h"
 #include "GameFramework/Controller.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(BaseCharacterLog, All, All)
 
@@ -87,6 +89,8 @@ void ASBaseCharacter::OnDeath()
     //PlayAnimMontage(DeathAnimMontage);
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     GetMesh()->SetSimulatePhysics(true);
+
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSound, GetActorLocation());
 }
 
 void ASBaseCharacter::OnGroundLanded(const FHitResult& Hit)

@@ -3,6 +3,7 @@
 
 #include "Player/SPlayerController.h"
 
+#include "SGameInstance.h"
 #include "SGameModeBase.h"
 #include "SRespawnComponent.h"
 #include "GameFramework/GameModeBase.h"
@@ -33,6 +34,7 @@ void ASPlayerController::SetupInputComponent()
         return;
 
     InputComponent->BindAction("PauseGame", IE_Pressed, this, &ASPlayerController::OnPauseGame);
+    InputComponent->BindAction("Mute", IE_Pressed, this, &ASPlayerController::OnMuteSound);
     
 }
 
@@ -57,4 +59,16 @@ void ASPlayerController::OnMatchStateChanged(ESMatchState State)
         SetInputMode(FInputModeUIOnly());
         bShowMouseCursor = true;
     }
+}
+
+void ASPlayerController::OnMuteSound()
+{
+    if (!GetWorld())
+        return;
+
+    const auto SGameInstance = GetWorld()->GetGameInstance<USGameInstance>();
+    if (!SGameInstance)
+        return;
+
+    SGameInstance->ToggleVolume();
 }

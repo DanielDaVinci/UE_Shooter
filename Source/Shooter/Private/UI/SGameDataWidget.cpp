@@ -3,12 +3,6 @@
 
 #include "UI/SGameDataWidget.h"
 
-int32 USGameDataWidget::GetKillsNum() const
-{
-    const auto PlayerState = GetSPlayerState();
-    return PlayerState ? PlayerState->GetKillsNum() : 0;
-}
-
 int32 USGameDataWidget::GetCurrentRoundNum() const
 {
     const auto GameMode = GetSGameModeBase();

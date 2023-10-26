@@ -10,22 +10,20 @@
 class UNiagaraSystem;
 class UPhysicalMaterial;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SHOOTER_API USWeaponFXComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-public:	
-    
-	USWeaponFXComponent();
+public:
+    USWeaponFXComponent();
 
     void PlayImpactFX(const FHitResult& Hit);
 
 protected:
-
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
     FImpactData DefaultImpactData;
-    
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
     TMap<UPhysicalMaterial*, FImpactData> ImpactDataMap;
 };

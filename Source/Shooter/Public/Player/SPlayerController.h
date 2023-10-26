@@ -27,6 +27,6 @@ protected:
 
 private:
     void OnPauseGame();
-
     void OnMatchStateChanged(ESMatchState State);
+    void OnMuteSound();
 };

@@ -6,6 +6,7 @@
 #include "Components/SWeaponComponent.h"
 #include "Components/SHealthComponent.h"
 #include "SUtils.h"
+#include "Components/ProgressBar.h"
 
 float USPlayerHUDWidget::GetHealthPercent() const
 {
@@ -48,15 +49,42 @@ bool USPlayerHUDWidget::IsPlayerSpectating() const
     return Controller && Controller->GetStateName() == NAME_Spectating;
 }
 
-bool USPlayerHUDWidget::Initialize()
+int32 USPlayerHUDWidget::GetKillsNum() const
 {
+    const auto Controller = GetOwningPlayer();
+    if (!Controller)
+        return 0;
+
+    const auto PlayerState = Cast<ASPlayerState>(Controller->PlayerState);
+
+    return PlayerState ? PlayerState->GetKillsNum() : 0;
+}
+
+FString USPlayerHUDWidget::FormatBullets(int32 BulletsNum) const
+{
+    const int32 MaxLen = 3;
+    const TCHAR PrefixSymbol = '0';
+
+    FString BulletsStr = FString::FromInt(BulletsNum);
+    const auto SymbolsNumToAdd = MaxLen - BulletsStr.Len();
+
+    if (SymbolsNumToAdd > 0)
+    {
+        BulletsStr = FString::ChrN(SymbolsNumToAdd, PrefixSymbol).Append(BulletsStr);
+    }
+
+    return BulletsStr;
+}
+
+void USPlayerHUDWidget::NativeOnInitialized()
+{
+    Super::NativeOnInitialized();
+
     if (GetOwningPlayer())
     {
         GetOwningPlayer()->GetOnNewPawnNotifier().AddUObject(this, &USPlayerHUDWidget::OnNewPawn);
         OnNewPawn(GetOwningPlayerPawn());
     }
-
-    return Super::Initialize();
 }
 
 void USPlayerHUDWidget::OnHealthChanged(float Health, float HealthDelta)
@@ -64,7 +92,14 @@ void USPlayerHUDWidget::OnHealthChanged(float Health, float HealthDelta)
     if (HealthDelta < 0.0f)
     {
         OnTakeDamage();
+
+        if (!IsAnimationPlaying(DamageAnimation))
+        {
+            PlayAnimation(DamageAnimation);
+        }
     }
+    
+    UpdateHealthBar();
 }
 
 void USPlayerHUDWidget::OnNewPawn(APawn* NewPawn)
@@ -74,4 +109,13 @@ void USPlayerHUDWidget::OnNewPawn(APawn* NewPawn)
     {
         HealthComponent->OnHealthChanged.AddUObject(this, &USPlayerHUDWidget::OnHealthChanged);
     }
+    UpdateHealthBar();
+}
+
+void USPlayerHUDWidget::UpdateHealthBar()
+{
+    if (!HealthProgressBar)
+        return;
+
+    HealthProgressBar->SetFillColorAndOpacity(GetHealthPercent() > PercentColorThreshold ? GoodColor : BadColor);
 }

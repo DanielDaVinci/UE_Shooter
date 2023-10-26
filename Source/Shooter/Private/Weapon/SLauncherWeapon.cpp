@@ -2,6 +2,9 @@
 
 
 #include "Weapon/SLauncherWeapon.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "Weapon/SProjectile.h"
 
 void ASLauncherWeapon::StartFire()
@@ -13,8 +16,15 @@ void ASLauncherWeapon::StartFire()
 
 void ASLauncherWeapon::MakeShot()
 {
-    if (!GetWorld() || IsAmmoEmpty())
+    if (!GetWorld())
     {
+        StopFire();
+        return;
+    }
+
+    if (IsAmmoEmpty())
+    {
+        UGameplayStatics::SpawnSoundAtLocation(GetWorld(), NoAmmoSound, GetActorLocation());
         StopFire();
         return;
     }
@@ -43,6 +53,6 @@ void ASLauncherWeapon::MakeShot()
     }
 
     DecreaseAmmo();
-
     SpawnMuzzleFX();
+    UGameplayStatics::SpawnSoundAttached(FireSound, WeaponMesh, MuzzleSocketName);
 }
